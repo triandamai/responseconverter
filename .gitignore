@@ -3,8 +3,8 @@
 *.aar
 *.ap_
 *.aab
-app
-src
+app/
+src/
 # Files for the ART/Dalvik VM
 *.dex
 

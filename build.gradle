@@ -1,4 +1,29 @@
 apply plugin: 'com.android.library'
+buildscript {
+    repositories {
+        google()
+        jcenter()
+        maven { url 'https://jitpack.io' }
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:4.0.1'
+
+
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
+    }
+}
+allprojects {
+    repositories {
+        jcenter()
+        google()
+        maven {
+            url "https://jitpack.io"
+        }
+        mavenCentral()
+    }
+}
 
 android {
     compileSdkVersion 30
@@ -28,16 +53,13 @@ android {
 
 dependencies {
     implementation 'com.android.support:multidex:1.0.3'
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation 'androidx.appcompat:appcompat:1.2.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.1'
-    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
-    implementation 'androidx.vectordrawable:vectordrawable:1.1.0'
     testImplementation 'junit:junit:4.13'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+
 
     /* retrofit gson*/
     implementation('com.squareup.retrofit2:retrofit:2.8.1')

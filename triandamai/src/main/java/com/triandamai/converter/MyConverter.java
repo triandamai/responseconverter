@@ -78,16 +78,11 @@ public abstract class MyConverter {
     }
 
     protected boolean cekresponsecode(){
-
-            if(!Cek(response.code())){
-                try {
-                    assert response.errorBody() != null;
-                    Log.e("Eror Body : ",response.errorBody().string());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
             return Cek(response.code());
+    }
+    protected String getEroroBody() throws IOException {
+        assert response.errorBody() != null;
+        return response.errorBody().string();
     }
     protected boolean responsebodyok() throws JSONException, IOException {
 

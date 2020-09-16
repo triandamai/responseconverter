@@ -6,7 +6,7 @@ import android.util.Log;
 /*
  * @method Cek(code,tag)
  * */
-public class ApiHandler {
+class ApiHandler {
     private static final String TAG = "PANDA ::";
 
     public static boolean Cek(int code) {

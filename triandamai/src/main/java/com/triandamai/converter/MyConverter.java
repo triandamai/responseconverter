@@ -43,7 +43,7 @@ import static com.triandamai.converter.ApiHandler.Cek;
 * Cara pakai
 *   jadikan class ini superclass ubah RED_CODE,RES_DATA dll sesuai dengan json kalian
 * */
-public class MyConverter {
+class MyConverter {
 
     public static final String RES_CODE = "status";
     public static final String RES_DATA = "data";

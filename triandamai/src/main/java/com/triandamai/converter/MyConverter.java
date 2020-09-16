@@ -2,6 +2,8 @@ package com.triandamai.converter;
 
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import com.google.gson.Gson;
 
 import org.json.JSONArray;
@@ -18,11 +20,10 @@ import retrofit2.Response;
 import static com.triandamai.converter.ApiHandler.Cek;
 
 
-/*
+/**
 *   MyConverter
 *   Author Trian Damai
-*   Di Class ini akan digunakan sebagai converter dari response retrofit tanpa perlu banyak baris code
-*   Contoh kita punya json:
+*   Contoh json:
 *  {
     "status": 200,
     "data": [
@@ -37,33 +38,47 @@ import static com.triandamai.converter.ApiHandler.Cek;
     "message": "Berhasil"
 }
 *
-* kita hanya perlu menggunakan method {@getData()} dan {@getSingleData()}
-* untuk status,success,message dll tidak perlu di convert2 lagi dan menghindari null pointer
-*
-* Cara pakai
-*   jadikan class ini superclass ubah RED_CODE,RES_DATA dll sesuai dengan json kalian
 * */
-public class MyConverter {
+public abstract class MyConverter {
 
-    public static final String RES_CODE = "status";
-    public static final String RES_DATA = "data";
+    /**
+    * jadikan class ini superclass ubah RED_CODE,RES_DATA dll sesuai dengan json kalian
+    *  */
+    protected static final String RES_CODE = "status";
+    protected static final String RES_DATA = "data";
+
+
+
+    /**
+    * sementara pake gson dulu
+    *
+    * */
     private Gson gson;
+    /**
+    * response disini
+    * */
     private Response<ResponseBody> response = null;
-    public MyConverter(){
+
+    /**
+     * constructor
+     */
+
+    protected MyConverter(){
         this.gson = new Gson();
     }
-    public static MyConverter create(){
-        return new MyConverter();
+    protected MyConverter create(){
+        return this;
     }
-    public MyConverter check(Response<ResponseBody> response){
+    protected MyConverter check(Response<ResponseBody> response){
         this.response = response;
         return this;
     }
-    public boolean success(){
+    protected boolean success(){
         return response.isSuccessful();
     }
-    public boolean responseok(){
-        if(response != null){
+
+    protected boolean cekresponsecode(){
+
             if(!Cek(response.code())){
                 try {
                     assert response.errorBody() != null;
@@ -73,56 +88,77 @@ public class MyConverter {
                 }
             }
             return Cek(response.code());
-        }else {
-            return false;
-        }
     }
-    public boolean responsebodyok(){
-        try {
-            if(response != null) {
-                String string = response.body().string();
-                JSONObject obj = new JSONObject(string);
-                int rescode = obj.getInt(RES_CODE);
-                return Cek(rescode);
-            }else {
-                return false;
-            }
-        } catch (IOException | JSONException e) {
-            e.printStackTrace();
-            return false;
-        }
+    protected boolean responsebodyok() throws JSONException, IOException {
+
+          if(this.cekresponsecode()) {
+              String string = response.body().string();
+              JSONObject obj = new JSONObject(string);
+              int rescode = obj.getInt(RES_CODE);
+              return Cek(rescode);
+          }else {
+              return false;
+          }
     }
-    public <T> T geSingletData(Class<T> tClass){
-        Object o;
+    protected  <T> T geSingletData(Class<T> tClass, onHasData hasManyData){
+        Object o = null;
         try {
-            if(responseok() && responsebodyok()) {
+            if(responsebodyok()) {
                     String str = response.body().string();
                     JSONObject obj = new JSONObject(str);
                     o = gson.fromJson(obj.getString(RES_DATA), tClass);
-                    return tClass.cast(o);
+                   if(hasManyData != null){
+                       hasManyData.onData(o,tClass);
+                   }
             }else {
                 return tClass.cast(new Object());
             }
 
         } catch (JSONException | IOException e) {
             e.printStackTrace();
-            return (T) new IllegalArgumentException("Error Convert Karena "+e.getMessage().toString());
+            hasManyData.onError(e.getMessage());
         }
+        return ((T)o);
     }
-    public <T> List<T> getData(Class<T> tClass){
+    protected  <T> List<T> getData(Class<T> tClass, onHasManyData hasData){
         List<T> o = new ArrayList<>();
         try {
-            String  str = response.body().string();
-            JSONObject obj = new JSONObject(str);
-            JSONArray jsonArray = obj.getJSONArray(RES_DATA);
-            for (int i =0 ; i < jsonArray.length();i++) {
-                Object a = gson.fromJson(jsonArray.get(i).toString(), tClass);
-                    o.add((T) a);
+            if(this.responsebodyok()){
+                String  str = response.body().string();
+                JSONObject obj = new JSONObject(str);
+                JSONArray jsonArray = obj.getJSONArray(RES_DATA);
+                o = new ArrayList<>();
+                for (int i =0 ; i < jsonArray.length();i++) {
+                    Object a = gson.fromJson(jsonArray.get(i).toString(), tClass);
+                        o.add((T)a);
+                }
+                if(hasData != null) {
+                    hasData.onData(o,tClass);
+                }
+            }else {
+                if(hasData != null){
+                    hasData.onError("Response code selain 200");
+                }
+                return  null;
             }
         } catch (JSONException | IOException e) {
             e.printStackTrace();
-            return (List<T>) new IllegalArgumentException("Error Convert karena "+e.getMessage().toString());
+            hasData.onError(e.getMessage());
         }
         return o ;
     }
+
+    public interface onHasData{
+        void onError(@NonNull  String errorBody);
+        default <T> T onData(@NonNull Object data, Class<T> tClass){
+            return tClass.cast(data);
+        };
+
+    }
+    public interface onHasManyData{
+        void onError(@NonNull String errorBody);
+        <T> void onData(List<T> o,Class<T> tClass);
+
+    }
+
 }

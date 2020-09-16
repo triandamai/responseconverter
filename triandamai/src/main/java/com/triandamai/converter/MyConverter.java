@@ -1,18 +1,16 @@
 package com.triandamai.converter;
 
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 
 import com.google.gson.Gson;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import okhttp3.ResponseBody;
 import retrofit2.Response;
@@ -77,68 +75,103 @@ public abstract class MyConverter {
         return response.isSuccessful();
     }
 
-    protected boolean cekresponsecode(){
+    protected boolean responsecode(){
             return Cek(response.code());
     }
+
     protected String getEroroBody() throws IOException {
         assert response.errorBody() != null;
         return response.errorBody().string();
     }
-    protected boolean responsebodyok() throws JSONException, IOException {
+    protected boolean responsebodyok() throws Exception {
 
-          if(this.cekresponsecode()) {
-              String string = response.body().string();
-              JSONObject obj = new JSONObject(string);
-              int rescode = obj.getInt(RES_CODE);
-              return Cek(rescode);
+          if(this.responsecode()) {
+              return Cek(getCodeBody());
           }else {
               return false;
           }
     }
-    protected  <T> T geSingletData(Class<T> tClass, onHasData hasManyData){
+    protected String getCodeBody() throws Exception {
+        String string = response.body().string();
+        JSONObject obj = new JSONObject(string);
+        Object rescode = obj.getInt(RES_CODE);
+        if(String.class.isAssignableFrom((Class<?>) rescode)){
+            return getStringCodeBody((String) rescode);
+        }else {
+            return String.valueOf(getIntCodeBody((Integer) rescode));
+        }
+    }
+    protected String getIntCodeBody(int res) {
+
+        return String.valueOf(res);
+    }
+
+    protected String getStringCodeBody(String code) {
+     return String.valueOf(code);
+    }
+
+    protected  <T> T geSingletData(Class<T> tClass, onHasData hasData){
         Object o = null;
         try {
-            if(responsebodyok()) {
+            if(responsecode()) {
+                if (responsebodyok()) {
+                    assert response.body() != null;
                     String str = response.body().string();
                     JSONObject obj = new JSONObject(str);
                     o = gson.fromJson(obj.getString(RES_DATA), tClass);
-                   if(hasManyData != null){
-                       hasManyData.onData(o,tClass);
-                   }
+                    if (hasData != null) {
+                        hasData.onData(o, tClass);
+                    }
+                } else {
+                    if (hasData != null){
+                        hasData.onError("RESPONSE BODY = "+getCodeBody());
+                    }
+                    return tClass.cast(new Object());
+                }
             }else {
-                return tClass.cast(new Object());
+                hasData.onError("RESPONSE CODE = "+response.code()+getEroroBody());
             }
 
-        } catch (JSONException | IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
-            hasManyData.onError(e.getMessage());
+            if(hasData != null) {
+                hasData.onError(Objects.requireNonNull(e.getMessage()));
+            }
         }
         return ((T)o);
     }
     protected  <T> List<T> getData(Class<T> tClass, onHasManyData hasData){
         List<T> o = new ArrayList<>();
         try {
-            if(this.responsebodyok()){
-                String  str = response.body().string();
-                JSONObject obj = new JSONObject(str);
-                JSONArray jsonArray = obj.getJSONArray(RES_DATA);
-                o = new ArrayList<>();
-                for (int i =0 ; i < jsonArray.length();i++) {
-                    Object a = gson.fromJson(jsonArray.get(i).toString(), tClass);
-                        o.add((T)a);
-                }
-                if(hasData != null) {
-                    hasData.onData(o,tClass);
+            if(this.responsecode()){
+                if(responsebodyok()) {
+                    String str = response.body().string();
+                    JSONObject obj = new JSONObject(str);
+                    JSONArray jsonArray = obj.getJSONArray(RES_DATA);
+                    o = new ArrayList<>();
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        Object a = gson.fromJson(jsonArray.get(i).toString(), tClass);
+                        o.add((T) a);
+                    }
+                    if (hasData != null) {
+                        hasData.onData(o, tClass);
+                    }
+                }else {
+                    if(hasData != null){
+                        hasData.onError("RESPONSE BODY = "+getCodeBody());
+                    }
                 }
             }else {
                 if(hasData != null){
-                    hasData.onError("Response code selain 200");
+                    hasData.onError("RESPONSE CODE "+getCodeBody()+getEroroBody());
                 }
                 return  null;
             }
-        } catch (JSONException | IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
-            hasData.onError(e.getMessage());
+            if(hasData != null) {
+                hasData.onError(Objects.requireNonNull(e.getMessage()));
+            }
         }
         return o ;
     }
@@ -152,7 +185,9 @@ public abstract class MyConverter {
     }
     public interface onHasManyData{
         void onError(@NonNull String errorBody);
-        <T> void onData(List<T> o,Class<T> tClass);
+        default <T> List<T> onData(List<T> data,Class<T> tClass){
+           return (List<T>) tClass.cast(data);
+        };
 
     }
 

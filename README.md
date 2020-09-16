@@ -71,7 +71,7 @@ Cara install
 # Tambahkan dependency
 ```
 dependencies {
-	        implementation 'com.github.triandamai:responseconverter:pertama'
+	        implementation 'com.github.triandamai:responseconverter:v1.0.4'
 	}
 ```
 

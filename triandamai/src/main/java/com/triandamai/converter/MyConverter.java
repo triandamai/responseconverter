@@ -67,23 +67,23 @@ public abstract class MyConverter {
     protected MyConverter create(){
         return this;
     }
-    protected MyConverter check(Response<ResponseBody> response){
+    public MyConverter check(Response<ResponseBody> response){
         this.response = response;
         return this;
     }
-    protected boolean success(){
+    public boolean success(){
         return response.isSuccessful();
     }
 
-    protected boolean responsecode(){
+    public boolean responsecode(){
             return Cek(response.code());
     }
 
-    protected String getEroroBody() throws IOException {
+    public String getEroroBody() throws IOException {
         assert response.errorBody() != null;
         return response.errorBody().string();
     }
-    protected boolean responsebodyok() throws Exception {
+    public boolean responsebodyok() throws Exception {
 
           if(this.responsecode()) {
               return Cek(getCodeBody());
@@ -91,7 +91,7 @@ public abstract class MyConverter {
               return false;
           }
     }
-    protected String getCodeBody() throws Exception {
+    public String getCodeBody() throws Exception {
         String string = response.body().string();
         JSONObject obj = new JSONObject(string);
         Object rescode = obj.getInt(RES_CODE);
@@ -101,16 +101,16 @@ public abstract class MyConverter {
             return String.valueOf(getIntCodeBody((Integer) rescode));
         }
     }
-    protected String getIntCodeBody(int res) {
+    public String getIntCodeBody(int res) {
 
         return String.valueOf(res);
     }
 
-    protected String getStringCodeBody(String code) {
+    public String getStringCodeBody(String code) {
      return String.valueOf(code);
     }
 
-    protected  <T> T geSingletData(Class<T> tClass, onHasData hasData){
+    public   <T> T geSingletData(Class<T> tClass, onHasData hasData){
         Object o = null;
         try {
             if(responsecode()) {
@@ -140,7 +140,7 @@ public abstract class MyConverter {
         }
         return ((T)o);
     }
-    protected  <T> List<T> getData(Class<T> tClass, onHasManyData hasData){
+    public   <T> List<T> getData(Class<T> tClass, onHasManyData hasData){
         List<T> o = new ArrayList<>();
         try {
             if(this.responsecode()){

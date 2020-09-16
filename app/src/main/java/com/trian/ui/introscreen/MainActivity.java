@@ -1,4 +1,4 @@
-package com.trian.ui.introscreen;
+package com.triandamai.ui.introscreen;
 
 
 import android.os.Bundle;
@@ -7,11 +7,11 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.trian.core.MyUser;
-import com.trian.data.services.Apiservice;
-import com.trian.domain.MyConverter;
-import com.trian.domain.UserModel;
-import com.trian.domain.request.LoginRequest;
+import com.triandamai.core.MyUser;
+import com.triandamai.data.services.Apiservice;
+import com.triandamai.domain.MyConverter;
+import com.triandamai.domain.UserModel;
+import com.triandamai.domain.request.LoginRequest;
 
 import java.util.List;
 

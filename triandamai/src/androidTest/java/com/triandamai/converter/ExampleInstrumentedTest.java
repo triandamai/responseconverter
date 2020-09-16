@@ -1,4 +1,4 @@
-package com.trian.damai;
+package com.triandamai.converter;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;

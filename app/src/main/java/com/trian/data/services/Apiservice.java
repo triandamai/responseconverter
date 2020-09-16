@@ -1,7 +1,7 @@
-package com.trian.data.services;
+package com.triandamai.data.services;
 
 
-import com.trian.domain.request.LoginRequest;
+import com.triandamai.domain.request.LoginRequest;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;

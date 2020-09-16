@@ -1,4 +1,4 @@
-package com.trian.domain;
+package com.triandamai.domain;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;

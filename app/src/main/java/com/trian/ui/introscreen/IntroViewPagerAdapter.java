@@ -1,4 +1,4 @@
-package com.trian.ui.introscreen;
+package com.triandamai.ui.introscreen;
 
 import android.content.Context;
 

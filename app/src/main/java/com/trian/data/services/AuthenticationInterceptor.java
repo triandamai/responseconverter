@@ -1,4 +1,4 @@
-package com.trian.data.services;
+package com.triandamai.data.services;
 
 import java.io.IOException;
 

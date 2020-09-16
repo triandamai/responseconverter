@@ -1,4 +1,4 @@
-package com.trian.damai;
+package com.triandamai.converter;
 
 import org.junit.Test;
 

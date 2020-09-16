@@ -1,4 +1,4 @@
-package com.trian.domain;
+package com.triandamai.domain;
 
 import android.util.Log;
 
@@ -15,7 +15,7 @@ import java.util.List;
 import okhttp3.ResponseBody;
 import retrofit2.Response;
 
-import static com.trian.core.ApiHandler.Cek;
+import static com.triandamai.core.ApiHandler.Cek;
 
 /*
 *   MyConverter

@@ -1,4 +1,4 @@
-package com.trian.core;
+package com.triandamai.core;
 
 import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
@@ -6,7 +6,7 @@ import android.content.SharedPreferences;
 import androidx.annotation.NonNull;
 
 import com.google.gson.Gson;
-import com.trian.domain.UserModel;
+import com.triandamai.domain.UserModel;
 
 public class MyUser {
     public final static String KEY_PREF = "zzzbba";

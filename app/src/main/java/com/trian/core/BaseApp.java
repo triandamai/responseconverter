@@ -1,4 +1,4 @@
-package com.trian.core;
+package com.triandamai.core;
 
 import android.app.Application;
 import android.content.Context;

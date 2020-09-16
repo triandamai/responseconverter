@@ -84,18 +84,14 @@ public abstract class MyConverter {
         return response.errorBody().string();
     }
     public boolean responsebodyok() throws Exception {
-
-          if(this.responsecode()) {
-              return Cek(getCodeBody());
-          }else {
-              return false;
-          }
+         return this.responsecode() && Cek(getCodeBody());
     }
     public String getCodeBody() throws Exception {
+        assert response.body() != null;
         String string = response.body().string();
         JSONObject obj = new JSONObject(string);
         Object rescode = obj.getInt(RES_CODE);
-        if(String.class.isAssignableFrom((Class<?>) rescode)){
+        if(String.class.isAssignableFrom((Class<String>) rescode)){
             return getStringCodeBody((String) rescode);
         }else {
             return String.valueOf(getIntCodeBody((Integer) rescode));
@@ -123,13 +119,14 @@ public abstract class MyConverter {
                         hasData.onData(o, tClass);
                     }
                 } else {
-                    if (hasData != null){
-                        hasData.onError("RESPONSE BODY = "+getCodeBody());
+                    if (hasData != null) {
+                        hasData.onError("RESPONSE BODY = " + getCodeBody());
                     }
-                    return tClass.cast(new Object());
                 }
             }else {
-                hasData.onError("RESPONSE CODE = "+response.code()+getEroroBody());
+                if(hasData != null) {
+                    hasData.onError("RESPONSE CODE = " + response.code() + getEroroBody());
+                }
             }
 
         } catch (Exception e) {
@@ -160,12 +157,12 @@ public abstract class MyConverter {
                     if(hasData != null){
                         hasData.onError("RESPONSE BODY = "+getCodeBody());
                     }
+
                 }
             }else {
                 if(hasData != null){
                     hasData.onError("RESPONSE CODE "+getCodeBody()+getEroroBody());
                 }
-                return  null;
             }
         } catch (Exception e) {
             e.printStackTrace();

@@ -97,17 +97,17 @@ public abstract class MyConverter {
             return String.valueOf(getIntCodeBody((Integer) rescode));
         }
     }
-    public String getIntCodeBody(int res) {
+    protected String getIntCodeBody(int res) {
 
         return String.valueOf(res);
     }
 
-    public String getStringCodeBody(String code) {
+    protected String getStringCodeBody(String code) {
      return String.valueOf(code);
     }
 
     public   <T> T geSingletData(Class<T> tClass, onHasData hasData){
-        Object o = null;
+        Object o = new Object();
         try {
             if(responsecode()) {
                 if (responsebodyok()) {

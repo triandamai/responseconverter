@@ -34,6 +34,8 @@ List<UserModel> u =  converter.getData(UserModel.class);
 Cara pakai
 ```java
 //inisiasi
+Buat sebuah class yang meng extend MyConverter
+
 MyConverter converter = MyConverter.create();
 
 //Pemakaian pada retrofit (misal)
@@ -56,6 +58,12 @@ MyConverter converter = MyConverter.create();
 ```
 
 Pada ```java.class ``` turunan ```override``` RES_CODE,RES_STATUS sesuai dengan property json kalian
+# Persistensi Data
+Pada ``Manifest.xml`` Tambahkan Provider:
+``
+<provider
+            android:authorities=".InitConverter"
+            android:name="com.triandamai.converter.InitConverter"/>``
 
 Cara install
 

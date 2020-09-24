@@ -1,27 +1,23 @@
+/*
+*   MyConverter
+*   Author Trian Damai
+*   Contoh json:
+*/
 package com.triandamai.converter;
 
 import androidx.annotation.NonNull;
-
 import com.google.gson.Gson;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
 import okhttp3.ResponseBody;
 import retrofit2.Response;
 
-import static com.triandamai.converter.ApiHandler.Cek;
-
-
+import static com.triandamai.converter.ApiHandler.cek;
 /**
-*   MyConverter
-*   Author Trian Damai
-*   Contoh json:
 *  {
     "status": 200,
     "data": [
@@ -59,6 +55,7 @@ public abstract class MyConverter {
 
     /**
      * constructor
+     * initialze all app
      */
 
     protected MyConverter(){
@@ -71,49 +68,54 @@ public abstract class MyConverter {
         this.response = response;
         return this;
     }
+    /**
+     *
+     * get succes request
+     */
+
     public boolean success(){
         return response.isSuccessful();
     }
 
+    /*
+    *
+    * get code from response status, and data stattus
+    * */
     public boolean responsecode(){
-            return Cek(response.code());
+            return cek(response.code());
     }
 
+    public int getCodeBody() throws Exception {
+        assert response.body() != null;
+        JSONObject obj = new JSONObject(response.body().string());
+        return  obj.getInt(RES_CODE);
+    }
+    public boolean responsebodyok() throws Exception {
+        return this.responsecode() && cek(getCodeBody());
+    }
+    /*
+    * di kasus ketika response code bukan 200/201
+    * maka kita perlu mengambil error body untuk mengetahui isi errornya
+    * */
     public String getEroroBody() throws IOException {
         assert response.errorBody() != null;
         return response.errorBody().string();
     }
-    public boolean responsebodyok() throws Exception {
-         return this.responsecode() && Cek(getCodeBody());
-    }
-    public String getCodeBody() throws Exception {
-        assert response.body() != null;
-        String string = response.body().string();
-        JSONObject obj = new JSONObject(string);
-        Object rescode = obj.getInt(RES_CODE);
-        if(String.class.isAssignableFrom((Class<String>) rescode)){
-            return getStringCodeBody((String) rescode);
-        }else {
-            return String.valueOf(getIntCodeBody((Integer) rescode));
-        }
-    }
-    protected String getIntCodeBody(int res) {
 
-        return String.valueOf(res);
-    }
 
-    protected String getStringCodeBody(String code) {
-     return String.valueOf(code);
-    }
-
+    /*
+    * Core converter
+    * untuk mengkonversi data json ke class
+    *  - SingleData = Untuk data berupa Object JSON
+    *  - Data = untuk data berupa Object Array JSON
+    * */
     public   <T> T geSingletData(Class<T> tClass, onHasData hasData){
         Object o = new Object();
         try {
             if(responsecode()) {
                 if (responsebodyok()) {
                     assert response.body() != null;
-                    String str = response.body().string();
-                    JSONObject obj = new JSONObject(str);
+                    JSONObject obj = new JSONObject(response.body().string());
                     o = gson.fromJson(obj.getString(RES_DATA), tClass);
                     if (hasData != null) {
                         hasData.onData(o, tClass);
@@ -130,22 +132,19 @@ public abstract class MyConverter {
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
             if(hasData != null) {
                 hasData.onError(Objects.requireNonNull(e.getMessage()));
             }
         }
         return ((T)o);
     }
-    public   <T> List<T> getData(Class<T> tClass, onHasManyData hasData){
+    public <T> List<T> getData(Class<T> tClass, onHasManyData hasData){
         List<T> o = new ArrayList<>();
         try {
             if(this.responsecode()){
                 if(responsebodyok()) {
-                    String str = response.body().string();
-                    JSONObject obj = new JSONObject(str);
+                    JSONObject obj = new JSONObject(response.body().string());
                     JSONArray jsonArray = obj.getJSONArray(RES_DATA);
-                    o = new ArrayList<>();
                     for (int i = 0; i < jsonArray.length(); i++) {
                         Object a = gson.fromJson(jsonArray.get(i).toString(), tClass);
                         o.add((T) a);
@@ -175,15 +174,15 @@ public abstract class MyConverter {
 
     public interface onHasData{
         void onError(@NonNull  String errorBody);
-        default <T> T onData(@NonNull Object data, Class<T> tClass){
-            return tClass.cast(data);
+        default <T> void onData(@NonNull Object data, Class<T> tClass){
+            tClass.cast(data);
         };
 
     }
     public interface onHasManyData{
         void onError(@NonNull String errorBody);
-        default <T> List<T> onData(List<T> data,Class<T> tClass){
-           return (List<T>) tClass.cast(data);
+        default <T> void onData(List<T> data, Class<T> tClass){
+            tClass.cast(data);
         };
 
     }

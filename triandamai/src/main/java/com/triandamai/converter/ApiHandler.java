@@ -9,160 +9,28 @@ import android.util.Log;
 class ApiHandler {
     private static final String TAG = "PANDA ::";
 
-    public static boolean Cek(int code) {
-        try {
-            int res = code;
-            if (res == 200 || res == 201) {
+    public static boolean cek(int code) {
+            if (code == 200 || code == 201) {
                 return true;
-            } else if (res == 400) {
+            } else if (code == 400) {
 
                 return false;
-            } else if (res == 401) {
+            } else if (code == 401) {
 
                 return false;
-            } else if (res == 404) {
+            } else if (code == 404) {
 
                 return false;
-            } else if (res == 500) {
+            } else if (code == 500) {
 
                 return false;
             } else {
 
                 return false;
             }
-        } catch (NullPointerException e) {
-            Log.e(TAG, e.getMessage());
-            return false;
-        } catch (NumberFormatException e) {
-            Log.e(TAG, e.getMessage());
-            return false;
-        }
     }
 
-    public static boolean Cek(String code) {
 
-        try {
-            int res = Integer.parseInt(code);
-            if (res == 200 || res == 201) {
-
-                return true;
-            } else if (res == 400) {
-
-                return false;
-            } else if (res == 401) {
-
-                return false;
-            } else if (res == 404) {
-
-                return false;
-            } else if (res == 500) {
-
-                return false;
-            } else {
-
-                return false;
-            }
-        } catch (NullPointerException e) {
-            Log.e(TAG, e.getMessage());
-            return false;
-        } catch (NumberFormatException e) {
-            Log.e(TAG, e.getMessage());
-            return false;
-        }
-    }
-
-    public static boolean Cek(int code, String TAG) {
-        try {
-            int res = code;
-            if (res == 200 || res == 201) {
-                return true;
-            } else if (res == 400) {
-
-                return false;
-            } else if (res == 401) {
-
-                return false;
-            } else if (res == 404) {
-
-                return false;
-            } else if (res == 500) {
-
-                return false;
-            } else {
-
-                return false;
-            }
-        } catch (NullPointerException e) {
-            Log.e(TAG, e.getMessage());
-            return false;
-        } catch (NumberFormatException e) {
-            Log.e(TAG, e.getMessage());
-            return false;
-        }
-    }
-
-    public static boolean Cek(String code, String TAG) {
-
-        try {
-            int res = Integer.parseInt(code);
-            if (res == 200 || res == 201) {
-
-                return true;
-            } else if (res == 400) {
-
-                return false;
-            } else if (res == 401) {
-
-                return false;
-            } else if (res == 404) {
-
-                return false;
-            } else if (res == 500) {
-
-                return false;
-            } else {
-
-                return false;
-            }
-        } catch (NullPointerException e) {
-            Log.e(TAG, e.getMessage());
-            return false;
-        } catch (NumberFormatException e) {
-            Log.e(TAG, e.getMessage());
-            return false;
-        }
-    }
-
-    public static boolean cekresponse(int res, Context context, String pesan) {
-        try {
-            if (res == 200 || res == 201) {
-
-                return true;
-            } else if (res == 400) {
-
-                return false;
-            } else if (res == 401) {
-
-                return false;
-            } else if (res == 404) {
-
-                return false;
-            } else if (res == 500) {
-
-                return false;
-            } else {
-
-                return false;
-            }
-        } catch (NullPointerException e) {
-            Log.e(TAG, e.getMessage());
-            return false;
-        } catch (NumberFormatException e) {
-            Log.e(TAG, e.getMessage());
-            return false;
-        }
-
-    }
         /*
     * String responseX = "";
     * try {

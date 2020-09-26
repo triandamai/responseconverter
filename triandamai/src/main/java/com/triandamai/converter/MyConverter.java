@@ -84,7 +84,7 @@ public abstract class MyConverter {
         this.tipedata = tipe;
         return this;
     }
-    protected <T> MyConverter setListener(whenIsDoneListener listener){
+    protected <T> MyConverter whenIsDone(whenIsDoneListener listener){
         this.whenIsDoneListener = listener;
         return this;
     }

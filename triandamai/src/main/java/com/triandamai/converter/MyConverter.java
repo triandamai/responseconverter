@@ -98,9 +98,9 @@ public abstract class MyConverter {
                     case RES_CREATED:
                     case RES_OK:
                         if (tipedata == typeGetData.List) {
-                                whenIsDoneListener.onSuccess(response.code(), getListData());
+                                whenIsDoneListener.onData(response.code(), null,getListData());
                             } else {
-                                whenIsDoneListener.onSuccess(response.code(), getObjectData(true));
+                                whenIsDoneListener.onData(response.code(), getObjectData(true),null);
                             }
                             break;
                     case RES_NOTACCEPTABLE:
@@ -164,7 +164,7 @@ public abstract class MyConverter {
 
 
     protected  <T> List<T> getListData() {
-        List<T> o = new ArrayList<>();
+        List<Object> o = new ArrayList<>();
         try {
             JSONObject obj = new JSONObject(response.body().string());
             JSONArray jsonArray = null;
@@ -173,16 +173,16 @@ public abstract class MyConverter {
                 Object a = gson.fromJson(jsonArray.get(i).toString(), tClass);
                 o.add((T) a);
             }
+
         } catch (JSONException | IOException e) {
             e.printStackTrace();
             o = null;
         }
-        return o ;
+        return ((List<T>)o) ;
     }
 
     public interface whenIsDoneListener{
-        <T> void onSuccess(int responseCode ,List<T> data);
-        <T> void onSuccess(int responseCode,T data);
+        <T> void onData(int responseCode,T obj,List<T> listobj);
         <T> void onResponse(int responseCode,T data,String responseBody);
         void onError(String errorBody);
     }

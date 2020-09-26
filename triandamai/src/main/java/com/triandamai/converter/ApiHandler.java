@@ -16,6 +16,7 @@ class ApiHandler {
             RES_UNAUTHORIZED= 401,
             RES_FORBIDDEN = 403,
             RES_NOTFOUND= 404,
+            RES_NOTACCEPTABLE = 406,
             RES_METHODNOTALLOWED = 405,
             RES_INTERNALSERVERERROR = 500;
 

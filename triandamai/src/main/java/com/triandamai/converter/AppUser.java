@@ -6,18 +6,26 @@ import android.content.SharedPreferences;
 
 import com.google.gson.Gson;
 
-public abstract class AppUser {
+public  class AppUser {
     private static String KEY_CURRENTUSER = "zzzzabx";
 
 
     private SharedPreferences.Editor editor;
     private SharedPreferences sharedPreferences;
+    private static AppUser appUser;
 
-    @SuppressLint("CommitPrefEdits")
-    public void initialize(Context context){
+    public AppUser(Context context) {
         String KEY_PERSISTANCE = "zzabxx";
         sharedPreferences  = context.getSharedPreferences(KEY_PERSISTANCE,0);
         editor = sharedPreferences.edit();
+    }
+
+    @SuppressLint("CommitPrefEdits")
+    public static AppUser initialize(Context context){
+        if(appUser == null){
+            appUser = new AppUser(context);
+        }
+     return  appUser;
     }
     public  AppUser getInstance(){
         return this;

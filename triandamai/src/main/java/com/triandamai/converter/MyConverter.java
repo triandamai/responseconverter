@@ -71,20 +71,20 @@ public abstract class MyConverter {
      * initialze all app
      */
 
-    protected <T> MyConverter createWithResponse(Response<ResponseBody> response){
+    public  <T> MyConverter createWithResponse(Response<ResponseBody> response){
         this.gson = new Gson();
         this.response = response;
         return this;
     }
-    protected <T> MyConverter setClassToConvert(Class<T> tClass){
+    public  <T> MyConverter setClassToConvert(Class<T> tClass){
         this.tClass = tClass;
         return this;
     }
-    protected <T> MyConverter setTypeData(typeGetData tipe){
+    public  <T> MyConverter setTypeData(typeGetData tipe){
         this.tipedata = tipe;
         return this;
     }
-    protected <T> MyConverter whenIsDone(whenIsDoneListener listener){
+    public  <T> MyConverter whenIsDone(whenIsDoneListener listener){
         this.whenIsDoneListener = listener;
         return this;
     }
@@ -141,7 +141,7 @@ public abstract class MyConverter {
     *  - SingleData = Untuk data berupa Object JSON
     *  - Data = untuk data berupa Object Array JSON
     * */
-    public   <T> T getObjectData( boolean isOk) throws Exception {
+    protected  <T> T getObjectData( boolean isOk) throws Exception {
         Object o;
         JSONObject obj = new JSONObject(response.body().string());
         if(isOk) {
@@ -153,7 +153,7 @@ public abstract class MyConverter {
     }
 
 
-    public <T> List<T> getListData() throws Exception {
+    protected  <T> List<T> getListData() throws Exception {
         List<T> o = new ArrayList<>();
         JSONObject obj = new JSONObject(response.body().string());
         JSONArray jsonArray = obj.getJSONArray(RES_DATA);

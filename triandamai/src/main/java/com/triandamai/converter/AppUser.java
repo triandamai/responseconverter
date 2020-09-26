@@ -52,4 +52,8 @@ public  class AppUser {
         editor.putString(KEY,gson.toJson(tClass.cast(data)));
         editor.apply();
     }
+    public void signOut(){
+        editor.clear();
+        editor.apply();
+    }
 }

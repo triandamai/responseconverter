@@ -8,24 +8,23 @@ import android.util.Log;
  * */
 class ApiHandler {
     private static final String TAG = "PANDA ::";
+    public static final int
+            RES_OK = 200,
+            RES_CREATED = 201,
+            RES_ACCEPTED = 202,
+            RS_BAD_REQUST = 400,
+            RES_UNAUTHORIZED= 401,
+            RES_FORBIDDEN = 403,
+            RES_NOTFOUND= 404,
+            RES_METHODNOTALLOWED = 405,
+            RES_INTERNALSERVERERROR = 500;
 
     public static boolean cek(int code) {
-            if (code == 200 || code == 201) {
+            if (code == RES_OK) {
                 return true;
-            } else if (code == 400) {
-
-                return false;
-            } else if (code == 401) {
-
-                return false;
-            } else if (code == 404) {
-
-                return false;
-            } else if (code == 500) {
-
-                return false;
+            } else if (code == RES_CREATED) {
+                return true;
             } else {
-
                 return false;
             }
     }

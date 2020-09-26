@@ -7,7 +7,10 @@ package com.triandamai.converter;
 
 import androidx.annotation.NonNull;
 import com.google.gson.Gson;
+import com.triandamai.converter.model.ResponseModel;
+
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -16,6 +19,12 @@ import java.util.Objects;
 import okhttp3.ResponseBody;
 import retrofit2.Response;
 
+import static com.triandamai.converter.ApiHandler.RES_CREATED;
+import static com.triandamai.converter.ApiHandler.RES_INTERNALSERVERERROR;
+import static com.triandamai.converter.ApiHandler.RES_METHODNOTALLOWED;
+import static com.triandamai.converter.ApiHandler.RES_NOTFOUND;
+import static com.triandamai.converter.ApiHandler.RES_OK;
+import static com.triandamai.converter.ApiHandler.RES_UNAUTHORIZED;
 import static com.triandamai.converter.ApiHandler.cek;
 /**
 *  {
@@ -38,11 +47,12 @@ public abstract class MyConverter {
     /**
     * jadikan class ini superclass ubah RED_CODE,RES_DATA dll sesuai dengan json kalian
     *  */
-    protected static final String RES_CODE = "status";
     protected static final String RES_DATA = "data";
 
-
-
+    public enum typeGetData{
+        Object,
+        List
+    }
     /**
     * sementara pake gson dulu
     *
@@ -52,20 +62,69 @@ public abstract class MyConverter {
     * response disini
     * */
     private Response<ResponseBody> response = null;
+    private Class tClass;
+    private whenIsDoneListener whenIsDoneListener;
+    private typeGetData tipedata;
 
     /**
      * constructor
      * initialze all app
      */
 
-    protected MyConverter(){
+    protected <T> MyConverter createWithResponse(Response<ResponseBody> response){
         this.gson = new Gson();
-    }
-    protected MyConverter create(){
+        this.response = response;
         return this;
     }
-    public MyConverter check(Response<ResponseBody> response){
-        this.response = response;
+    protected <T> MyConverter setClassToConvert(Class<T> tClass){
+        this.tClass = tClass;
+        return this;
+    }
+    protected <T> MyConverter setTypeData(typeGetData tipe){
+        this.tipedata = tipe;
+        return this;
+    }
+    protected <T> MyConverter setListener(whenIsDoneListener listener){
+        this.whenIsDoneListener = listener;
+        return this;
+    }
+    public MyConverter check() throws Exception {
+        if(whenIsDoneListener != null) {
+            if (success()) {
+                switch (response.code()) {
+                    case RES_OK:
+                        if(tipedata == typeGetData.List){
+                            whenIsDoneListener.onSuccess(response.code(),getListData());
+                        }else {
+                            whenIsDoneListener.onSuccess(response.code(),getObjectData(true));
+                        }
+                        break;
+                    case RES_CREATED:
+                        if(tipedata == typeGetData.List){
+                            whenIsDoneListener.onSuccess(response.code(),getListData());
+                        }else {
+                            whenIsDoneListener.onSuccess(response.code(),getObjectData(true));
+                        }
+                        break;
+                    case RES_UNAUTHORIZED:
+                        whenIsDoneListener.onResponse(RES_UNAUTHORIZED,getObjectData(false),response.body().string());
+                        break;
+                    case RES_INTERNALSERVERERROR:
+                        whenIsDoneListener.onError("Server 500");
+                        break;
+                    case RES_METHODNOTALLOWED:
+                        whenIsDoneListener.onError("method not allowed ");
+                        break;
+                    case RES_NOTFOUND:
+                        whenIsDoneListener.onError("not found");
+                        break;
+                }
+            }else {
+                whenIsDoneListener.onError("Tidak berhasil request data ! error:"+response.toString());
+            }
+        }else {
+            throw new IllegalArgumentException("Listener kosong woi!!");
+        }
         return this;
     }
     /**
@@ -76,115 +135,40 @@ public abstract class MyConverter {
     public boolean success(){
         return response.isSuccessful();
     }
-
-    /*
-    *
-    * get code from response status, and data stattus
-    * */
-    public boolean responsecode(){
-            return cek(response.code());
-    }
-
-    public int getCodeBody() throws Exception {
-        assert response.body() != null;
-        JSONObject obj = new JSONObject(response.body().string());
-        return  obj.getInt(RES_CODE);
-    }
-    public boolean responsebodyok() throws Exception {
-        return this.responsecode() && cek(getCodeBody());
-    }
-    /*
-    * di kasus ketika response code bukan 200/201
-    * maka kita perlu mengambil error body untuk mengetahui isi errornya
-    * */
-    public String getEroroBody() throws IOException {
-        assert response.errorBody() != null;
-        return response.errorBody().string();
-    }
-
-
     /*
     * Core converter
     * untuk mengkonversi data json ke class
     *  - SingleData = Untuk data berupa Object JSON
     *  - Data = untuk data berupa Object Array JSON
     * */
-    public   <T> T geSingletData(Class<T> tClass, onHasData hasData){
-        Object o = new Object();
-        try {
-            if(responsecode()) {
-                if (responsebodyok()) {
-                    assert response.body() != null;
-                    JSONObject obj = new JSONObject(response.body().string());
-                    o = gson.fromJson(obj.getString(RES_DATA), tClass);
-                    if (hasData != null) {
-                        hasData.onData(o, tClass);
-                    }
-                } else {
-                    if (hasData != null) {
-                        hasData.onError("RESPONSE BODY = " + getCodeBody());
-                    }
-                }
-            }else {
-                if(hasData != null) {
-                    hasData.onError("RESPONSE CODE = " + response.code() + getEroroBody());
-                }
-            }
-
-        } catch (Exception e) {
-            if(hasData != null) {
-                hasData.onError(Objects.requireNonNull(e.getMessage()));
-            }
+    public   <T> T getObjectData( boolean isOk) throws Exception {
+        Object o;
+        JSONObject obj = new JSONObject(response.body().string());
+        if(isOk) {
+            o = gson.fromJson(obj.getString(RES_DATA), tClass);
+        }else {
+            o = gson.fromJson(response.body().string(),ResponseModel.class);
         }
         return ((T)o);
     }
-    public <T> List<T> getData(Class<T> tClass, onHasManyData hasData){
-        List<T> o = new ArrayList<>();
-        try {
-            if(this.responsecode()){
-                if(responsebodyok()) {
-                    JSONObject obj = new JSONObject(response.body().string());
-                    JSONArray jsonArray = obj.getJSONArray(RES_DATA);
-                    for (int i = 0; i < jsonArray.length(); i++) {
-                        Object a = gson.fromJson(jsonArray.get(i).toString(), tClass);
-                        o.add((T) a);
-                    }
-                    if (hasData != null) {
-                        hasData.onData(o, tClass);
-                    }
-                }else {
-                    if(hasData != null){
-                        hasData.onError("RESPONSE BODY = "+getCodeBody());
-                    }
 
-                }
-            }else {
-                if(hasData != null){
-                    hasData.onError("RESPONSE CODE "+getCodeBody()+getEroroBody());
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            if(hasData != null) {
-                hasData.onError(Objects.requireNonNull(e.getMessage()));
-            }
+
+    public <T> List<T> getListData() throws Exception {
+        List<T> o = new ArrayList<>();
+        JSONObject obj = new JSONObject(response.body().string());
+        JSONArray jsonArray = obj.getJSONArray(RES_DATA);
+        for (int i = 0; i < jsonArray.length(); i++) {
+            Object a = gson.fromJson(jsonArray.get(i).toString(), tClass);
+            o.add((T) a);
         }
         return o ;
     }
 
-    public interface onHasData{
-        void onError(@NonNull  String errorBody);
-        default <T> void onData(@NonNull Object data, Class<T> tClass){
-            tClass.cast(data);
-        };
-
-    }
-    public interface onHasManyData{
-        void onError(@NonNull String errorBody);
-        default <T> void onData(List<T> data, Class<T> tClass){
-            tClass.cast(data);
-        };
-
+    public interface whenIsDoneListener{
+        <T> void onSuccess(int responseCode ,List<T> data);
+        <T> void onSuccess(int responseCode,T data);
+        <T> void onResponse(int responseCode,T data,String responseBody);
+        void onError(String errorBody);
     }
 
 }

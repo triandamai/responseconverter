@@ -8,10 +8,11 @@ import android.net.Uri;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-public class InitConverter extends ContentProvider {
+public abstract class InitConverter extends ContentProvider {
     @Override
     public boolean onCreate() {
         AppUser.initialize(getContext());
+        BaseApplication.context = getContext();
         return true;
     }
 

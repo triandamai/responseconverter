@@ -19,6 +19,13 @@ public  class AppUser {
         sharedPreferences  = context.getSharedPreferences(KEY_PERSISTANCE,0);
         editor = sharedPreferences.edit();
     }
+    public AppUser() {
+        String KEY_PERSISTANCE = "zzabxx";
+        sharedPreferences  = BaseApplication.getContext().getSharedPreferences(KEY_PERSISTANCE,0);
+        editor = sharedPreferences.edit();
+    }
+
+
 
     @SuppressLint("CommitPrefEdits")
     public static AppUser initialize(Context context){
@@ -27,8 +34,8 @@ public  class AppUser {
         }
      return  appUser;
     }
-    public  AppUser getInstance(){
-        return this;
+    public  static AppUser getInstance(){
+        return new AppUser();
     }
     public <T> T getCurrentUser(Class<T> tClass){
         Gson gson = new Gson();

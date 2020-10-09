@@ -37,11 +37,11 @@ public  class AppUser {
     public  static AppUser getInstance(){
         return new AppUser();
     }
-    public <T> T getCurrentUser(Class<T> tClass){
+    public <T> T getCurrentUser(Class tClass){
         Gson gson = new Gson();
         String data = sharedPreferences.getString(KEY_CURRENTUSER,"");
-        T o= gson.fromJson(data,tClass);
-        return ((T)o);
+        Object o= gson.fromJson(data,tClass);
+        return ((T) o);
     }
     public void setCurrentuser(Object data,Class tClass){
         Gson gson = new Gson();
@@ -52,7 +52,7 @@ public  class AppUser {
         Gson gson = new Gson();
         String data = sharedPreferences.getString(KEY,"");
         T o= gson.fromJson(data,tClass);
-        return ((T)o);
+        return (T)o;
     }
     public void setData(String KEY,Object data,Class tClass){
         Gson gson = new Gson();
@@ -63,4 +63,6 @@ public  class AppUser {
         editor.clear();
         editor.apply();
     }
+
+
 }

@@ -1,9 +1,11 @@
 package com.triandamai.converter;
 
+import android.annotation.SuppressLint;
 import android.app.Application;
 import android.content.Context;
 
-abstract class BaseApplication extends Application {
+public abstract class BaseApplication extends Application {
+    @SuppressLint("StaticFieldLeak")
     static Context context;
     @Override
     public void onCreate() {
@@ -15,7 +17,5 @@ abstract class BaseApplication extends Application {
         return context;
     }
 
-    public void setContext(Context context) {
-        this.context = context;
-    }
+    
 }
